@@ -1,0 +1,11 @@
+Flask
+Flask-DotEnv
+Flask-HTTPAuth
+Flask-Login
+Flask-Migrate
+Flask-Script
+Flask-SQLAlchemy
+Flask-SSLify
+passlib
+psycopg2
+SQLAlchemy

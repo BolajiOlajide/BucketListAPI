@@ -1,0 +1,14 @@
+autopep8==1.3
+coverage
+Flask
+Flask-DotEnv
+Flask-HTTPAuth
+Flask-Login
+Flask-Migrate
+Flask-Script
+Flask-SQLAlchemy
+Flask-SSLify
+nose
+passlib
+psycopg2
+SQLAlchemy
