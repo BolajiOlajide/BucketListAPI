@@ -60,7 +60,7 @@ class TestingConfig(Config):
 
     USE_RATE_LIMITS = False
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://bolaji:andela@localhost/bolaji'
+    SQLALCHEMY_DATABASE_URI = 'postgres://rkswjhal:Z_eG-nhn-_DqTEHpxCxjm6OV568FnG6Y@stampy.db.elephantsql.com:5432/rkswjhal'
 
 
 class ProductionConfig(Config):

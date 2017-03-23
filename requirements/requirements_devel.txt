@@ -8,6 +8,7 @@ Flask-Migrate
 Flask-Script
 Flask-SQLAlchemy
 Flask-SSLify
+Flask-WTF
 nose
 passlib
 psycopg2
