@@ -66,8 +66,6 @@ def paginate():
 
             # get query, paginate the query and get content of query
             query = f(*args, **kwargs)
-            import ipdb
-            ipdb.set_trace()
             pagination = query.paginate(page, limit)
             content = pagination.items
 

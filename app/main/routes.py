@@ -38,14 +38,9 @@ def get_bucketlists():
             )
         finally:
             bucketlists = result.to_json()
-
-    elif request.args.get('limit'):
-        pass
+            return jsonify({'bucketlist': bucketlists}), 200
     else:
-        for bucketlist in BucketList.query.filter_by(created_by=user):
-            bucketlists.append(bucketlist.to_json())
-
-    return jsonify({'bucketlist': bucketlists}), 200
+        return BucketList.query.filter_by(created_by=user)
 
 
 @main.route('/bucketlists/<int:list_id>', methods=['GET'])

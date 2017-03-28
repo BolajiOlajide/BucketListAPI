@@ -25,8 +25,8 @@ class Config:
     USE_TOKEN_AUTH = True
     DEBUG = False
     SSLIFY_SUBDOMAINS = True
-    DEFAULT_PER_PAGE = 2
-    MAX_PER_PAGE = 3
+    DEFAULT_PER_PAGE = 20
+    MAX_PER_PAGE = 100
 
     @staticmethod
     def init_app(app):
