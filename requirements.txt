@@ -3,6 +3,7 @@ coverage
 Flask
 Flask-DotEnv
 Flask-HTTPAuth
+Flask-JWT
 Flask-Login
 Flask-Migrate
 Flask-Script
