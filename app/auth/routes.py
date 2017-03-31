@@ -23,8 +23,10 @@ def verify_password(token, password):
     going to be in the request headers always.
     """
     user = User.verify_auth_token(token)
+
     if not user:
         return False
+
     g.user = user
     return True
 
@@ -53,9 +55,8 @@ def login():
         return errors.bad_request("Username and password doesn't match.")
 
     g.user = user
-    print g.user
-    token = get_auth_token()
-    return jsonify(token.data)
+    token = user.generate_auth_token()
+    return jsonify({'token': token})
 
 
 @authe.route('/register', methods=['POST'])
