@@ -4,16 +4,15 @@ Define SQLAlchemy models.
 The SQLAlchemy models for the database is defined here.
 """
 
-from datetime import datetime
-from itsdangerous import (
-    TimedJSONWebSignatureSerializer as Serializer, BadSignature,
-    SignatureExpired)
+import datetime
 
 from flask import current_app, url_for
+from itsdangerous import (
+    TimedJSONWebSignatureSerializer as Serializer,
+    BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
 
 from . import db
-from app import errors
 
 
 class Base(db.Model):
@@ -25,13 +24,11 @@ class Base(db.Model):
 
     __abstract__ = True
 
-    current_time = datetime.now()
-
-    date_created = db.Column(db.DateTime, default=current_time, nullable=False)
+    date_created = db.Column(
+        db.DateTime, default=datetime.datetime.now(), nullable=False)
     date_modified = db.Column(
-        db.DateTime, default=current_time, onupdate=current_time,
-        nullable=False
-    )
+        db.DateTime, default=datetime.datetime.now(),
+        onupdate=datetime.datetime.now(), nullable=False)
 
     def save(self):
         """
@@ -82,7 +79,7 @@ class User(Base):
         """
         return pwd_context.verify(password, self.password_hash)
 
-    def generate_auth_token(self, expiration=600):
+    def generate_auth_token(self, expiration=36000):
         """
         Generate token.
 
@@ -102,12 +99,15 @@ class User(Base):
         try:
             data = s.loads(token)
         except SignatureExpired:
-            # token is valid but has expired
-            return errors.token_error("The Token has expired")
+            return None
+
+            # valid token, but expired
         except BadSignature:
+            return None
+
             # invalid token
-            return errors.token_error("The token is invalid")
-        return User.query.get(data['id'])
+        user = User.query.get(data['id'])
+        return user
 
     def to_json(self):
         """
