@@ -105,4 +105,9 @@ def get_auth_token():
 
 @auth.error_handler
 def auth_error():
+    """
+    Handle authentication errors.
+
+    Handle all auth errors.
+    """
     return errors.unauthorized('Invalid credentials')
