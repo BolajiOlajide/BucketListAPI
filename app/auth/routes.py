@@ -85,20 +85,6 @@ def register_user():
                                   "Please try again.")
 
 
-@authe.route('/token')
-def get_auth_token():
-    """
-    Generate a token.
-
-    When a user is verified, a token is sent to process the requests.
-    """
-    try:
-        token = g.user.generate_auth_token()
-    except:
-        return jsonify({'Error': 'No User is logged in.'}), 401
-    return jsonify({'token': token.decode('ascii')})
-
-
 @auth.error_handler
 def auth_error():
     """
