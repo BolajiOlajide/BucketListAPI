@@ -92,4 +92,4 @@ def auth_error():
 
     Handle all auth errors.
     """
-    return errors.unauthorized('Invalid credentials')
+    return errors.token_error('Invalid credentials')
