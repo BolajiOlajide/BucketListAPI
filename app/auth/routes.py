@@ -48,15 +48,11 @@ def login():
         return errors.bad_request("username or password missing.")
 
     user = User.query.filter_by(username=username).first()
-    if not user:
+    if not user or not user.verify_password(password):
         return errors.bad_request("Username and password doesn't match.")
 
-    if not user.verify_password(password):
-        return errors.bad_request("Username and password doesn't match.")
-
-    g.user = user
     token = user.generate_auth_token()
-    return jsonify({'token': token})
+    return jsonify({'token': token}), 200
 
 
 @authe.route('/register', methods=['POST'])
