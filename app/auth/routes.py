@@ -101,3 +101,8 @@ def get_auth_token():
     except:
         return jsonify({'Error': 'No User is logged in.'}), 401
     return jsonify({'token': token.decode('ascii')})
+
+
+@auth.error_handler
+def auth_error():
+    return errors.unauthorized('Invalid credentials')
