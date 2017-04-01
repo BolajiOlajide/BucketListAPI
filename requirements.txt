@@ -10,6 +10,7 @@ Flask-Script
 Flask-SQLAlchemy
 Flask-SSLify
 Flask-WTF
+gunicorn
 nose
 passlib
 psycopg2
