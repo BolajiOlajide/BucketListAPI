@@ -102,3 +102,7 @@ class UserModelTestCase(unittest.TestCase):
         password = 'andela'
         u.hash_password(password)
         self.assertTrue(u.verify_password(password))
+
+
+if __name__ == '__main__':
+    unittest.main()
