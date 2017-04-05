@@ -1,4 +1,5 @@
 language: python
+sudo: required
 python:
   - "2.7"
 # command to install dependencies
@@ -7,4 +8,4 @@ install: "pip install -r requirements.txt"
 script:
   - nosetests --with-coverage
 after_success:
-  - coveralls
+  coveralls
