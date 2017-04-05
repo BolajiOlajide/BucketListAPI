@@ -3,7 +3,6 @@ Setup an initialization to delay the creation of the application after runtime.
 
 This helps to enable the use of blueprint.
 """
-
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -30,9 +29,5 @@ def create_app(config_name):
     # Link to the blueprint script for the routes
     from main import main as main_blueprint
     app.register_blueprint(main_blueprint, url_prefix='/api/v1')
-
-    # Register the views blueprint in the application instance.
-    from views import view as view_blueprint
-    app.register_blueprint(view_blueprint, template_folder='templates')
 
     return app
