@@ -24,7 +24,7 @@ class TestAPIRoutes(unittest.TestCase):
     default_username = 'andela'
     default_password = 'andela'
     another_user = 'proton'
-    bucketlist_name = "Proton's BucketList"
+    bucketlist_name = "Protons BucketList"
     bucketlist_item_name = 'Meet Njira'
     bucketlist2_name = "Ichiato's BucketList"
     bucketlist_item2_name = 'Slap Koya'
@@ -97,7 +97,6 @@ class TestAPIRoutes(unittest.TestCase):
         Test the route that gets all the BucketLists and also check the status
         code it returns.
         """
-        print self.token
         response = self.client.get(
             url_for('main.get_bucketlists'),
             headers=create_api_headers(self.token))
@@ -142,7 +141,7 @@ class TestAPIRoutes(unittest.TestCase):
         data = json.loads(response.get_data(as_text=True))
         self.assertEquals(response.status_code, 200)
         self.assertEquals(data['bucketlists'][0]['name'],
-                          "Proton's BucketList")
+                          "Protons BucketList")
 
     def test_get_bucketlist(self):
         """
@@ -167,7 +166,7 @@ class TestAPIRoutes(unittest.TestCase):
             headers=create_api_headers(self.token))
         self.assertEquals(response.status_code, 404)
 
-    def notest_create_bucketlist(self):
+    def test_create_bucketlist(self):
         """
         Test the create_bucketlist endpoint.
 
@@ -179,8 +178,7 @@ class TestAPIRoutes(unittest.TestCase):
             data=json.dumps({"name": "Proton's BucketList"}),
             headers=create_api_headers(self.token))
         data = json.loads(response.get_data(as_text=True))
-        print data
-        # self.assertEquals(data['name'], "Proton's BucketList")
+        self.assertEquals(data['name'], "Proton's BucketList")
         self.assertEquals(response.status_code, 201)
 
     def test_create_bucketlist_with_keyerror(self):
@@ -195,3 +193,188 @@ class TestAPIRoutes(unittest.TestCase):
             data=json.dumps({"names": "Proton's BucketList"}),
             headers=create_api_headers(self.token))
         self.assertEquals(response.status_code, 400)
+
+    def test_identical_bucketlist_name(self):
+        """
+        Test for identical BucketList name.
+
+        This test tries to save a BucketList with a name that already exists
+        in the database. It should return a custom 400 error.
+        """
+        response = self.client.post(
+            url_for('main.create_bucketlist'),
+            data=json.dumps({"name": "Protons BucketList"}),
+            content_type='application/json',
+            headers=create_api_headers(self.token))
+        data = json.loads(response.get_data(as_text=True))
+        self.assertEquals(data['message'], "An error occurred while saving. "
+                                           "Please try again.")
+        self.assertEquals(response.status_code, 400)
+
+    def test_update_bucketlist(self):
+        """
+        Test what happens when we update a BucketList.
+
+        Usually when we update a BucketList we should get a 200 status code
+        provided all information need is supplied.
+        """
+        response = self.client.put(
+            url_for('main.update_bucketlist', list_id=1),
+            data=json.dumps({"name": "Proton BucketList"}),
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 200)
+
+    def test_update_nonexistent_bucketlist(self):
+        """
+        Test what happens when we update a nonexistent BucketList.
+
+        When the user tries to update a BucketList that doesn't exist, he
+        should be getting a 404 error with a custom message describing the
+        error.
+        """
+        response = self.client.put(
+            url_for('main.update_bucketlist', list_id=20),
+            data=json.dumps({"name": "Proton's BucketList"}),
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 404)
+
+    def test_update_bucketlist_without_json(self):
+        """
+        Test what happens when a user tries to update BucketList with no JSON.
+
+        When a user tries to update a BucketList without sending a content type
+        of JSON, a custom 400 error is thrown with appropriate description.
+        """
+        response = self.client.put(
+            url_for('main.update_bucketlist', list_id=1),
+            data={"name": "Proton BucketList"},
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 400)
+
+    def test_update_bucketlist_with_wrong_key(self):
+        """
+        Test what when a user tries to update BucketList with no 'name' key.
+
+        When a user tries to update a BucketList and doesn't supply a valid
+        JSON with the name key. It should return a custom 400 error.
+        """
+        response = self.client.put(
+            url_for('main.update_bucketlist', list_id=1),
+            data=json.dumps({"names": "Proton's BucketList"}),
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 400)
+
+    def test_delete_nonexistent_bucketlist(self):
+        """
+        Test response when a user deletes nonexistent BucketList.
+
+        When a user tries to delete a BucketList that doesn't belong to them,
+        the application returns a custom 404 error.
+        """
+        response = self.client.delete(
+            url_for('main.delete_bucketlist', list_id=12),
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 404)
+
+    def test_add_bucketlist_item(self):
+        """
+        Test the response received when user adds new BucketList item.
+
+        When a new item is created the API returns a status code 201 to
+        indicate that a new resource has been created.
+        """
+        response = self.client.post(
+            url_for('main.add_bucketlist_item', list_id=1),
+            data=json.dumps({
+                "name": "Travel to Portugal",
+                "done": "false"
+            }),
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 200)
+
+    def test_add_item_to_nonexistent_bucketlist(self):
+        """
+        Test what response when user adds item to nonexistent BucketList.
+
+        When a user tries to add an item to a BucketList that doesn't exist,
+        the API should return a 404 error.
+        """
+        response = self.client.post(
+            url_for('main.add_bucketlist_item', list_id=12),
+            data=json.dumps({
+                "name": "Travel to Portugal",
+                "done": "false"
+            }),
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 404)
+
+    def test_add_item_without_json(self):
+        """
+        Test status code returned when a user adds item with wrong content.
+
+        The application accepts only JSON inputs and when it doesn't get a
+        valid JSON input it returns a custom 400 error.
+        """
+        response = self.client.post(
+            url_for('main.add_bucketlist_item', list_id=1),
+            data={
+                "names": "Travel to Portugal"
+            },
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 400)
+
+    def test_update_bucketlist_item(self):
+        """
+        Test the response received when user updates a BucketList item.
+
+        When an item is updated using the PUT method, the API returns a 200
+        status code.
+        """
+        response = self.client.put(
+            url_for('main.update_bucketlist_item', list_id=1, item_id=1),
+            data=json.dumps({
+                "name": "Travel to Nigeria",
+                "done": "false"
+            }),
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 200)
+
+    def test_delete_bucketlist_item(self):
+        """
+        Test the delete BucketList endpoint.
+
+        When an item is deleted it should return a 200 status code.
+        """
+        response_post = self.client.post(
+            url_for('main.add_bucketlist_item', list_id=1),
+            data=json.dumps({
+                "name": "Travel to Portugal",
+                "done": "false"
+            }),
+            headers=create_api_headers(self.token))
+        response = self.client.delete(
+            url_for('main.delete_bucketlist_item', list_id=1, item_id=1),
+            headers=create_api_headers(self.token))
+        self.assertEquals(response_post.status_code, 200)
+        self.assertEquals(response.status_code, 200)
+
+    def test_delete_item_wrong_bucketlist(self):
+        """
+        Test deleting an item from a wrong BucketList.
+
+        Items are bound to BucketLists via the BucketList's ID. When an item
+        that isn't associated with a BucketList is put up for deletion, a
+        custom 404 error status code is returned.
+        """
+        response = self.client.delete(
+            url_for('main.delete_bucketlist_item', list_id=20, item_id=1),
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_nonexistent_item(self):
+        """
+        """
+        response = self.client.delete(
+            url_for('main.delete_bucketlist_item', list_id=1, item_id=100),
+            headers=create_api_headers(self.token))
+        self.assertEquals(response.status_code, 404)
