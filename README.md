@@ -3,30 +3,74 @@
 # BucketListAPI
 This repository contains a fully working API project that communicates seamlessly with the BucketList service. This API accepts only `JSON` objects as input. The API service requires authentication for easy access to the resources provided.
 
+## Development
+This application was developed using [Flask](http://flask.pocoo.org/). Postgres was used for persisting data with [SQLAlchemy](https://www.sqlalchemy.org/) as [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping).
+
+## Application Features
+###### User Authentication
+Users are authenticated and validated using an `itsdangerous` token. Generating tokens on login ensures each account is unique to a user and can't be accessed by an authenticated user.
+
 ## Installation
 * Start up your terminal (or Command Prompt on Windows OS).
-* Clone the repository by entering the command `git clone https://github.com/andela-bolajide/BucketListAPI` in the terminal - this clones the project to your PC.
+* Ensure that you've `python` installed on your PC.
+* Clone the repository by entering the command `git clone https://github.com/andela-bolajide/BucketListAPI` in the terminal.
 * Navigate to the project folder using `cd BucketListAPI` on your terminal (or command prompt)
-* After cloning, install the requirements with the command:
-`pip install requirements/requirements.txt` or `pip install requirements/requirements_devel.txt` if you wish to contribute to the project as a developer.
-* After this, you'll need to migrate data to the database so the schema can be built with the command `python manage.py db migrate -m "initial migration"`.
-* Once migration is done, you then upgrade the database with the command `python manage.py db upgrade`
-* A customized interactive python shell can be accessed by passing the command `python manage.py shell` on your terminal.
-
-
-## Usage
-* Before accessing most of the resources accessible with this API, you'll need to have an account created. This endpoint is available via the route: `/auth/register/`
-`curl -u sample_token:unused -i -X GET http://127.0.0.1:5000/api/v1/bucketlists/`
+* After cloning, create a virtual environment then install the requirements with the command:
+`pip install requirements.txt`.
+* Create a `.env` file in your root directory as described in `.env.sample` file. Variables such as DATABASE_URL and config are defined in the .env file and it is essential you create this file before running the application.
+* After this, you'll need to migrate data scheme to the database using the command: `python manage.py create_db`.
 
 ## Testing
 To ensure that your installation is successful you'll need to run tests.
 Enter the command `python manage.py test` in your terminal (or command prompt) to run test.
 
+## Usage
+* A customized interactive python shell can be accessed by passing the command `python manage.py shell` on your terminal.
+* Once this is done, the application can be started using `python manage.py runserver` and by default the application can be accessed at `http://127.0.0.1:5000`. The application starts using the configuration settings defined in your .env file.
+
+## Configuration
+The API currently has 4 different configuration which can be defined in the .env file.
+- `production`: this configuration starts the app ready for production to be deployed on any cloud application platform such as Heroku, AWS etc.
+- `development`: this configuration starts the application in the development mode.
+- `testing`: this configuration starts the application in a testing mode.
+- `default`: this is the same as the development configuration.
+
+## API Documentation
+-----
+The API has routes, each dedicated to a single task that uses HTTP response codes to indicate API status and errors.
+
+#### API Features
+
+The following features make up the BucketList API:
+
+###### Authentication
+-   It uses itsdangerous-Serializer token for authentication.
+
+-   It generates a token on successful login and returns it to the user.
+
+-   It verifies the token to ensures a user is authenticated to access protected endpoints.
+
+###### Users
+
+-   It allows users to be created.
+
+-   It allows users to login and obtain a token
+
+-   It allows authenticated users to retrieve and update their information.
+
+###### BucketLists
+
+-   It allows new bucketlists to be created by authenticated users.
+
+-   It ensures all bucketlist are accessible based on the permission specified.
+
+-   It allows the users to create, retrieve, modify, and delete bucketlists and bucketlist items.
+
 ### API Resource Endpoints
 
 URL Prefix = `http://sample_domain/api/v1` where sample domain is the root URL of the server HOST.
 
--------------------------------------------------------------------------------------------
+
 | EndPoint                                 | Functionality                 | Public Access|
 | -----------------------------------------|:-----------------------------:|-------------:|
 | **POST** /auth/register                  | Register a user               |    TRUE      |
@@ -39,12 +83,63 @@ URL Prefix = `http://sample_domain/api/v1` where sample domain is the root URL o
 | *POST* /bucketlists/id                   | Create a new item bucket list |    FALSE     |
 | *PUT* /bucketlists/id/items/item_id      | Update a bucket list item     |    FALSE     |
 | *DELETE* /bucketlists/id/items/item_id   | Delete an item in bucket list |    FALSE     |
--------------------------------------------------------------------------------------------
 
-### Screenshots
-![alt text][ScreenShot1]
+#### Authentication
+###### POST HTTP Request
+-   `POST /auth/login`
+    ###### HTTP Response
+-   HTTP Status: `200: created`
+-   JSON data
+```json
+{
+  "token": "eyJhbGciOiJIUImV4cCI6MTQ5MTM1MDk5MCwiaWF0pZCI6MX0.sPajMqbJwGtnb8xEcR4Ardmd9G9OFPIHr-_oEM"
+}
+```
 
-[ScreenShot1]: https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "User trying to access his saved BucketList with the use of token."
+###### POST HTTP Request
+-   `POST /auth/register`
+    ###### HTTP Response
+-   HTTP Status: `201: created`
+-   JSON data
+```json
+{
+  "username": "test_user"
+}
+```
+
+#### BucketLists
+###### GET HTTP Request
+-   `GET /api/v1/bucketlists`
+-   Requires: User Authentication
+    ###### HTTP Response
+-   HTTP Status: `200: OK`
+-   JSON data
+```json
+{
+      "bucketlist_url": "http://localhost:5000/api/v1/bucketlists/10",
+      "created_by": 2,
+      "date_created": "Sun, 26 Mar 2017 19:11:06 GMT",
+      "date_modified": "Sun, 26 Mar 2017 19:11:06 GMT",
+      "id": 10,
+      "items": [
+        {
+          "date_created": "Sun, 26 Mar 2017 19:41:48 GMT",
+          "date_modified": "Sun, 26 Mar 2017 19:41:48 GMT",
+          "done": false,
+          "id": 11,
+          "name": "I want to be an OAP"
+        },
+        {
+          "date_created": "Sun, 26 Mar 2017 19:41:48 GMT",
+          "date_modified": "Sun, 26 Mar 2017 19:41:48 GMT",
+          "done": false,
+          "id": 12,
+          "name": "I want to be a presenter..."
+        }
+      ],
+      "name": "Adepeju's BucketList"
+    }
+```
 
 ## Authors
 
