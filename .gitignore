@@ -4,3 +4,5 @@ __pycache_/
 *.DS_Store
 .env
 bucketlistdb.sqlite
+bucketlistapi
+bucketlistapi.pub
