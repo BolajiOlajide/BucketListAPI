@@ -3,14 +3,18 @@ Configuration Test Case.
 
 Test the configuration of the application to be certain it's functioning well.
 """
+from os.path import join
 import os
 import unittest
 
+from dotenv import load_dotenv
 from flask import current_app
 
 from app import create_app
 
 basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+dotenv_path = join(basedir, '.env')
+load_dotenv(dotenv_path)
 
 
 class TestDevelopmentConfig(unittest.TestCase):
@@ -49,8 +53,8 @@ class TestDevelopmentConfig(unittest.TestCase):
         self.assertTrue(self.app.config['DEBUG'] is True)
         self.assertFalse(current_app is None)
         self.assertTrue(
-            self.app.config['SQLALCHEMY_DATABASE_URI'] == 'postgresql://'
-            'bolaji:andela@localhost/bucketlist'
+            self.app.config['SQLALCHEMY_DATABASE_URI'] ==
+            os.environ.get("DATABASE_URI")
         )
         self.assertTrue(self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'])
 
@@ -88,10 +92,9 @@ class TestTestingConfig(unittest.TestCase):
         Test that DEBUG and SQLALCHEMY_TRACK_MODIFICATIONS are set to True and
         the database used is the local one.
         """
-        dbase = 'sqlite:///' + os.path.join(basedir, 'bucketlistdb.sqlite')
+        dbase = 'sqlite:///bucketlistdb.sqlite'
         self.assertFalse(self.app.config['USE_RATE_LIMITS'] is True)
         self.assertTrue(self.app.config['SQLALCHEMY_DATABASE_URI'] == dbase)
-        self.assertEqual(self.app.config['SERVER_NAME'], 'localhost:5000')
 
 
 class TestProductionConfig(unittest.TestCase):
@@ -119,3 +122,15 @@ class TestProductionConfig(unittest.TestCase):
         This method removes every information related to the test cases.
         """
         self.app_context.pop()
+
+    def test_app_is_prod_mode(self):
+        """
+        Test the testing configuration.
+
+        Test that DEBUG and SQLALCHEMY_TRACK_MODIFICATIONS are set to True and
+        the database used is the local one.
+        """
+        self.assertTrue(
+            self.app.config['SQLALCHEMY_DATABASE_URI'] ==
+            os.environ.get("DATABASE_URI")
+        )
