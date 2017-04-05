@@ -6,10 +6,14 @@ The definition of the different configuration settings is contained here:
 - Testing Configuration
 - Production Configuration
 """
-
 import os
+from os.path import join, dirname
+
+from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
 
 
 class Config:
@@ -19,7 +23,7 @@ class Config:
     Attributes such as SECRET_KEY are the same no matter the platform used.
     """
 
-    SECRET_KEY = 'u35dfh___vv@$%%jkdsvjkhb___jdfnv93043klm__vdmkll55vd----__'
+    SECRET_KEY = os.environ.get("SECRET_KEY")
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     USE_TOKEN_AUTH = True
@@ -47,7 +51,7 @@ class DevelopmentConfig(Config):
     modes, so they are defined in a class called DevelopmentConfig.
     """
 
-    SQLALCHEMY_DATABASE_URI = 'postgresql://bolaji:andela@localhost/bucketlist'
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     DEBUG = True
 
@@ -62,9 +66,8 @@ class TestingConfig(Config):
 
     USE_RATE_LIMITS = False
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(
-        basedir, 'bucketlistdb.sqlite')
-    SERVER_NAME = 'localhost:5000'
+    SQLALCHEMY_DATABASE_URI = os.environ.get("TEST_DB")
+    SERVER_NAME = os.environ.get("SERVER_NAME")
 
 
 class ProductionConfig(Config):
@@ -75,7 +78,7 @@ class ProductionConfig(Config):
     modes, so they are defined in a class called ProductionConfig.
     """
 
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URI")
 
 
 # Object containing the different configuration classes.

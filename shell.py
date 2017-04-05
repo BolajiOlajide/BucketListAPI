@@ -5,11 +5,17 @@ Write a function to import all the context and objects needed for a shell
 prompt.
 """
 import os
+from os.path import join, dirname
+
+from dotenv import load_dotenv
 
 from app.models import User, BucketList, Items
 from app import db, create_app
 
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+app = create_app(os.environ.get('FLASK_CONFIG'))
 
 
 def make_shell_context():

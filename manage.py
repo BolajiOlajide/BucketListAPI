@@ -3,11 +3,11 @@ Python script for managing the flask application.
 
 THis is the script that starts the flask application.
 """
-
+from os.path import join, dirname
 import os
 import unittest
 
-from flask_dotenv import DotEnv
+from dotenv import load_dotenv
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Shell, Manager, prompt_bool, Server
 from flask_sslify import SSLify
@@ -15,10 +15,10 @@ from flask_sslify import SSLify
 from app import db, create_app
 from shell import make_shell_context
 
-
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+app = create_app(os.environ.get('FLASK_CONFIG'))
 sslify = SSLify(app)
-env = DotEnv(app)
 db.init_app(app)
 manager = Manager(app)
 migrate = Migrate(app, db)
