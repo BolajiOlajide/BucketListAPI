@@ -85,13 +85,12 @@ def update_bucketlist(list_id):
 
     if not request.json:
         return errors.bad_request("No JSON file detected.")
-
-    if 'done' not in request.json or 'name' not in request.json:
-        return errors.bad_request("The keys 'done' and 'name' not in the JSON")
-
-    bucketlist.name = request.json.get('name')
-    bucketlist.save()
-    return bucketlist, 200
+    elif 'name' not in request.json:
+        return errors.bad_request("The key 'name' not in the JSON")
+    else:
+        bucketlist.name = request.json.get('name')
+        bucketlist.save()
+        return bucketlist, 200
 
 
 @main.route('/bucketlists/<int:list_id>', methods=['DELETE'])
@@ -107,9 +106,9 @@ def delete_bucketlist(list_id):
     if not bucketlist or bucketlist.created_by != g.user.user_id:
         return errors.not_found("The BucketList with the id: {0} doesn't"
                                 " exist.".format(list_id))
-
-    bucketlist.delete()
-    return jsonify({'Delete': True}), 200
+    else:
+        bucketlist.delete()
+        return jsonify({'Delete': True}), 200
 
 
 @main.route(
@@ -130,13 +129,13 @@ def add_bucketlist_item(list_id):
         return errors.not_found("The BucketList with the id: {0} doesn't"
                                 " exist.".format(list_id))
 
-    if not request.json or 'name' not in request.json:
+    if not request.json or (('name' and 'done') not in request.json):
         return errors.bad_request("No JSON file detected.")
 
     item = Items().from_json(request.json)
     item.bucketlist_id = bucketlist.bucketlist_id
     item.save()
-    return bucketlist, 201
+    return bucketlist, 200
 
 
 @main.route(
@@ -161,7 +160,7 @@ def update_bucketlist_item(list_id, item_id):
         return errors.not_found("The item with the ID: {0} doesn't exist"
                                 .format(item_id))
 
-    if not request.json or (('name' or 'done') not in request.json):
+    if not request.json or (('name' and 'done') not in request.json):
         return errors.bad_request("No JSON file detected.")
 
     item.name = request.json.get('name')
@@ -182,19 +181,17 @@ def delete_bucketlist_item(list_id, item_id):
     This function deletes an item from a BucketList.
     """
     bucketlist = BucketList.query.filter_by(bucketlist_id=list_id).first()
+    item = Items.query.filter_by(item_id=item_id).first()
 
     if not bucketlist or bucketlist.created_by != g.user.user_id:
         return errors.not_found("The BucketList with the id: {0} doesn't"
                                 " exist.".format(list_id))
-
-    item = Items.query.filter_by(item_id=item_id).first()
-
-    if not item or (item.bucketlist_id != bucketlist.bucketlist_id):
+    elif not item or (item.bucketlist_id != bucketlist.bucketlist_id):
         return errors.not_found("The item with the ID: {0} doesn't exist"
                                 .format(item_id))
-
-    item.delete()
-    return bucketlist, 200
+    else:
+        item.delete()
+        return bucketlist, 200
 
 
 @main.route('/login', methods=["POST"], strict_slashes=False)
