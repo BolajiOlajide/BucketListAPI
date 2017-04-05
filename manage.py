@@ -46,7 +46,7 @@ def create_db():
 
     Using the SQLAlchemy models the method creates database tables
     """
-    app = create_app('default')
+    app = create_app(os.environ.get('FLASK_CONFIG'))
     with app.app_context():
         db.create_all()
 
@@ -59,7 +59,7 @@ def drop_db():
     Drops all tables in the database after confirmation from the user.
     """
     if prompt_bool("Are you sure you want to lose all your data?"):
-        app = create_app('default')
+        app = create_app(os.environ.get('FLASK_CONFIG'))
         with app.app_context():
             db.drop_all()
 
