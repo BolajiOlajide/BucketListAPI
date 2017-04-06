@@ -5,6 +5,6 @@ Create and import the views to be used for the Blueprint
 """
 from flask import Blueprint
 
-authe = Blueprint('authe', __name__)
+authentication = Blueprint('authentication', __name__)
 
 from . import routes

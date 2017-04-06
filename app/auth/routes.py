@@ -6,7 +6,7 @@ Password verification and user registration takes place here.
 from flask import g, jsonify, request
 from flask_httpauth import HTTPBasicAuth
 
-from . import authe
+from . import authentication
 from app import errors
 from app.decorators import json
 from app.models import User
@@ -15,7 +15,7 @@ auth = HTTPBasicAuth()
 
 
 @auth.verify_password
-def verify_password(token, password):
+def verify_token(token, password):
     """
     Verify token.
 
@@ -31,12 +31,13 @@ def verify_password(token, password):
     return True
 
 
-@authe.route('/login', methods=['POST'])
+@authentication.route('/login', methods=['POST'])
 def login():
     """
-    Verify a user's identity.
+    Verify user name & password.
 
-    Verify the user's identity and returns a token.
+    Verify the user's identity using the username and password and returns
+    a token.
     """
     if not request.json:
         return errors.bad_request("No JSON file detected.")
@@ -44,24 +45,25 @@ def login():
     username = request.json.get('username')
     password = request.json.get('password')
 
-    if not username or not password:
+    if not (username and password):
         return errors.bad_request("username or password missing.")
 
     user = User.query.filter_by(username=username).first()
-    if not user or not user.verify_password(password):
-        return errors.bad_request("Username and password doesn't match.")
+    if not (user and user.verify_password(password)):
+        return errors.unauthorized("Username and password doesn't match.")
 
     token = user.generate_auth_token()
     return jsonify({'token': token}), 200
 
 
-@authe.route('/register', methods=['POST'])
+@authentication.route('/register', methods=['POST'])
 @json
 def register_user():
     """
     Create a new user.
 
-    Creates a new user in the application.
+    Using the supplied information in the body of the request, a new user is
+    created using the user name & password provided.
     """
     if not request.json:
         return errors.bad_request("No JSON file detected.")
@@ -69,7 +71,7 @@ def register_user():
     username = request.json.get('username')
     password = request.json.get('password')
 
-    if not username or not password:
+    if not (username and password):
         return errors.bad_request("username or password missing.")
 
     if User.query.filter_by(username=username).first():

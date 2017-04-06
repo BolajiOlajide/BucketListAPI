@@ -77,20 +77,20 @@ def update_bucketlist(list_id):
 
     Update a BucketList name.
     """
-    bucketlist = BucketList.query.filter_by(bucketlist_id=list_id).first()
-
-    if not bucketlist or bucketlist.created_by != g.user.user_id:
-        return errors.not_found("The BucketList with the id: {0} doesn't"
-                                " exist.".format(list_id))
-
     if not request.json:
         return errors.bad_request("No JSON file detected.")
     elif 'name' not in request.json:
         return errors.bad_request("The key 'name' not in the JSON")
     else:
-        bucketlist.name = request.json.get('name')
-        bucketlist.save()
-        return bucketlist, 200
+        bucketlist = BucketList.query.filter_by(bucketlist_id=list_id).first()
+
+        if not bucketlist or bucketlist.created_by != g.user.user_id:
+            return errors.not_found("The BucketList with the id: {0} doesn't"
+                                    " exist.".format(list_id))
+        else:
+            bucketlist.name = request.json.get('name')
+            bucketlist.save()
+            return bucketlist, 200
 
 
 @main.route('/bucketlists/<int:list_id>', methods=['DELETE'])

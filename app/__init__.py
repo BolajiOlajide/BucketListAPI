@@ -23,7 +23,7 @@ def create_app(config_name):
     db.init_app(app)
 
     # Register the authentication blueprint in the application instance.
-    from auth import authe as auth_blueprint
+    from auth import authentication as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
     # Link to the blueprint script for the routes

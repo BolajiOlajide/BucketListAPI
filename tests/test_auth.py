@@ -63,7 +63,7 @@ class TestUserModel(unittest.TestCase):
         """
         with self.client:
             response = self.client.post(
-                url_for('authe.register_user'),
+                url_for('authentication.register_user'),
                 data=json.dumps({'username': 'proton', 'password': 'andela'}),
                 content_type='application/json'
             )
@@ -91,7 +91,7 @@ class TestUserModel(unittest.TestCase):
         """
         with self.client:
             response = self.client.post(
-                url_for('authe.login'),
+                url_for('authentication.login'),
                 data=json.dumps({'username': 'njirap', 'password': 'andela'}),
                 content_type='application/json'
             )
@@ -107,7 +107,7 @@ class TestUserModel(unittest.TestCase):
         """
         with self.client:
             response = self.client.post(
-                url_for('authe.login'),
+                url_for('authentication.login'),
                 data={'username': 'njirap', 'password': 'andela'},
             )
         self.assertTrue(response.content_type == 'application/json')
@@ -122,7 +122,7 @@ class TestUserModel(unittest.TestCase):
         """
         with self.client:
             response = self.client.post(
-                url_for('authe.login'),
+                url_for('authentication.login'),
                 data=json.dumps({'username': 'njirap', 'password': ''}),
                 content_type='application/json'
             )
@@ -138,12 +138,12 @@ class TestUserModel(unittest.TestCase):
         """
         with self.client:
             response = self.client.post(
-                url_for('authe.login'),
+                url_for('authentication.login'),
                 data=json.dumps({'username': 'njirap', 'password': 'percila'}),
                 content_type='application/json'
             )
         self.assertTrue(response.content_type == 'application/json')
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 401)
 
 
 if __name__ == '__main__':
