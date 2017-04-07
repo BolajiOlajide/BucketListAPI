@@ -24,12 +24,6 @@ class Base(db.Model):
 
     __abstract__ = True
 
-    date_created = db.Column(
-        db.DateTime, default=datetime.datetime.now(), nullable=False)
-    date_modified = db.Column(
-        db.DateTime, default=datetime.datetime.now(),
-        onupdate=datetime.datetime.now(), nullable=False)
-
     def save(self):
         """
         Save to database.
@@ -61,6 +55,11 @@ class User(Base):
     username = db.Column(db.String(32), unique=True, index=True,
                          nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
+    date_created = db.Column(
+        db.DateTime, default=datetime.datetime.now(), nullable=False)
+    date_modified = db.Column(
+        db.DateTime, default=datetime.datetime.now(),
+        onupdate=datetime.datetime.now(), nullable=False)
 
     def hash_password(self, password):
         """
@@ -138,6 +137,11 @@ class BucketList(Base):
     __tablename__ = 'bucketlist'
     bucketlist_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, nullable=False)
+    date_created = db.Column(
+        db.DateTime, default=datetime.datetime.now(), nullable=False)
+    date_modified = db.Column(
+        db.DateTime, default=datetime.datetime.now(),
+        onupdate=datetime.datetime.now(), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('users.user_id'),
                            nullable=False)
 
@@ -209,6 +213,11 @@ class Items(Base):
     item_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
     done = db.Column(db.Boolean, nullable=False)
+    date_created = db.Column(
+        db.DateTime, default=datetime.datetime.now(), nullable=False)
+    date_modified = db.Column(
+        db.DateTime, default=datetime.datetime.now(),
+        onupdate=datetime.datetime.now(), nullable=False)
     bucketlist_id = db.Column(
         db.Integer, db.ForeignKey('bucketlist.bucketlist_id'), nullable=False
     )
