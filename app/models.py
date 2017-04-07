@@ -10,7 +10,7 @@ from flask import current_app, url_for
 from itsdangerous import (
     TimedJSONWebSignatureSerializer as Serializer,
     BadSignature, SignatureExpired)
-from passlib.apps import custom_app_context as pwd_context
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from . import db
 
@@ -68,7 +68,7 @@ class User(Base):
 
         Passwords shouldn't be stored as string so we hash them.
         """
-        self.password_hash = pwd_context.encrypt(password)
+        self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
         """
@@ -77,7 +77,7 @@ class User(Base):
         Use the pwd_context to decrypt the password hash and confirm if it
         matches the initial password set by the user.
         """
-        return pwd_context.verify(password, self.password_hash)
+        return check_password_hash(self.password_hash, password)
 
     def generate_auth_token(self, expiration=36000):
         """
