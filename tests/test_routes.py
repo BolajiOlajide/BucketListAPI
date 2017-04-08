@@ -24,6 +24,7 @@ class TestAPIRoutes(unittest.TestCase):
     default_username = 'andela'
     default_password = 'andela'
     another_user = 'proton'
+    another_password = 'proton'
     bucketlist_name = "Protons BucketList"
     bucketlist_item_name = 'Meet Njira'
     bucketlist2_name = "Ichiato's BucketList"
@@ -46,10 +47,11 @@ class TestAPIRoutes(unittest.TestCase):
         user = User(username=self.default_username)
         user.hash_password(self.default_password)
         user2 = User(username=self.another_user)
-        user2.hash_password(self.default_password)
+        user2.hash_password(self.another_password)
         db.session.add_all([user, user2])
         db.session.commit()
         g.user = user
+        self.user2 = user2
         bucketlist = BucketList(name=self.bucketlist_name,
                                 created_by=user.user_id)
         bucketlist2 = BucketList(name=self.bucketlist2_name,
@@ -196,20 +198,21 @@ class TestAPIRoutes(unittest.TestCase):
 
     def test_identical_bucketlist_name(self):
         """
-        Test for identical BucketList name.
+        Test for identical BucketList name with another user.
 
         This test tries to save a BucketList with a name that already exists
-        in the database. It should return a custom 400 error.
+        in the database and was saved by another user. It should return a 200
+        status code.
         """
+        token = self.user2.generate_auth_token()
+        print token
+        print self.user2.username
         response = self.client.post(
             url_for('main.create_bucketlist'),
             data=json.dumps({"name": "Protons BucketList"}),
             content_type='application/json',
-            headers=create_api_headers(self.token))
-        data = json.loads(response.get_data(as_text=True))
-        self.assertEquals(data['message'], "An error occurred while saving. "
-                                           "Please try again.")
-        self.assertEquals(response.status_code, 400)
+            headers=create_api_headers(token))
+        self.assertEquals(response.status_code, 201)
 
     def test_update_bucketlist(self):
         """
