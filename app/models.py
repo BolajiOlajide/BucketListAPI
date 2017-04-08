@@ -134,9 +134,11 @@ class BucketList(Base):
     Define the properties of the BucketList object and the table name too.
     """
 
+    __table_args__ = (db.UniqueConstraint(
+        'name', 'created_by', name='unique_constraint_bucketlist'),)
     __tablename__ = 'bucketlist'
     bucketlist_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True, nullable=False)
+    name = db.Column(db.String(64), nullable=False)
     date_created = db.Column(
         db.DateTime, default=datetime.datetime.now(), nullable=False)
     date_modified = db.Column(
@@ -209,6 +211,8 @@ class Items(Base):
     Define the properties of the Items object and the table name too.
     """
 
+    __table_args__ = (db.UniqueConstraint(
+        'name', 'bucketlist_id', name='unique_constraint_item'),)
     __tablename__ = 'items'
     item_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
