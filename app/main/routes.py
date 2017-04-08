@@ -4,12 +4,15 @@ This script contains the routes for the different API methods.
 This handles the overall routing of the application.
 """
 from flask import g, jsonify, request
+import psycopg2
 
 from . import main
 from app import errors
 from app.auth.routes import auth
 from app.decorators import json, paginate
 from app.models import BucketList, Items, User
+import sqlalchemy
+from app import db
 
 
 @main.route('/bucketlists/', methods=['GET'])
@@ -62,7 +65,8 @@ def create_bucketlist():
     try:
         bucketlist = BucketList(name=request.json.get('name'), created_by=user)
         bucketlist.save()
-    except:
+    except (sqlalchemy.exc.IntegrityError, sqlalchemy.exc.InvalidRequestError):
+        db.session().rollback()
         return errors.bad_request("An error occurred while saving. "
                                   "Please try again.")
     return bucketlist, 201
