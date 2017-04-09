@@ -92,7 +92,7 @@ class TestTestingConfig(unittest.TestCase):
         Test that DEBUG and SQLALCHEMY_TRACK_MODIFICATIONS are set to True and
         the database used is the local one.
         """
-        dbase = 'sqlite:///bucketlistdb.sqlite'
+        dbase = os.environ.get("TEST_DB")
         self.assertFalse(self.app.config['USE_RATE_LIMITS'] is True)
         self.assertTrue(self.app.config['SQLALCHEMY_DATABASE_URI'] == dbase)
 
