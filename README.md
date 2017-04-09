@@ -16,9 +16,15 @@ Users are authenticated and validated using an `itsdangerous` token. Generating 
 * Clone the repository by entering the command `git clone https://github.com/andela-bolajide/BucketListAPI` in the terminal.
 * Navigate to the project folder using `cd BucketListAPI` on your terminal (or command prompt)
 * After cloning, create a virtual environment then install the requirements with the command:
-`pip install requirements.txt`.
+`pip install -r requirements.txt`.
 * Create a `.env` file in your root directory as described in `.env.sample` file. Variables such as DATABASE_URL and config are defined in the .env file and it is essential you create this file before running the application.
-* After this, you'll need to migrate data scheme to the database using the command: `python manage.py create_db`.
+```
+FLASK_CONFIG='default'
+DATABASE_URI='database connection to be used'
+SECRET_KEY='random string used for generating token'
+TEST_DB='database to be used for testing'
+```
+* After this, you'll need to migrate data schema to the database using the command: `python manage.py create_db`.
 
 ## Testing
 To ensure that your installation is successful you'll need to run tests.
@@ -80,13 +86,20 @@ URL Prefix = `http://sample_domain/api/v1` where sample domain is the root URL o
 | **GET** /bucketlists/id                  | Get single bucket list        |    FALSE     |
 | **PUT** /bucketlists/id                  | Update a bucket list          |    FALSE     |
 | **DELETE** /bucketlists/id               | Delete a bucket list          |    FALSE     |
-| *POST* /bucketlists/id                   | Create a new item bucket list |    FALSE     |
-| *PUT* /bucketlists/id/items/item_id      | Update a bucket list item     |    FALSE     |
-| *DELETE* /bucketlists/id/items/item_id   | Delete an item in bucket list |    FALSE     |
+| **POST** /bucketlists/id/items           | Create a new item bucket list |    FALSE     |
+| **PUT** /bucketlists/id/items/item_id    | Update a bucket list item     |    FALSE     |
+| **DELETE** /bucketlists/id/items/item_id | Delete an item in bucket list |    FALSE     |
 
 #### Authentication
 ###### POST HTTP Request
 -   `POST /auth/login`
+-   INPUT:
+```json
+{
+  "username":"username",
+  "password":"password"
+}
+```
     ###### HTTP Response
 -   HTTP Status: `200: created`
 -   JSON data
@@ -98,6 +111,13 @@ URL Prefix = `http://sample_domain/api/v1` where sample domain is the root URL o
 
 ###### POST HTTP Request
 -   `POST /auth/register`
+-   INPUT:
+```json
+{
+  "username":"username",
+  "password":"password"
+}
+```
     ###### HTTP Response
 -   HTTP Status: `201: created`
 -   JSON data
@@ -139,6 +159,104 @@ URL Prefix = `http://sample_domain/api/v1` where sample domain is the root URL o
       ],
       "name": "Adepeju's BucketList"
     }
+```
+
+###### POST HTTP Request
+-   `POST /api/v1/bucketlists`
+```json
+{
+  "name":"BucketList1"
+}
+```
+-   Requires: User Authentication
+    ###### HTTP Response
+-   HTTP Status: `200: OK`
+-   JSON data
+```json
+{
+      "bucketlist_url": "http://localhost:5000/api/v1/bucketlists/10",
+      "created_by": 2,
+      "date_created": "Sun, 26 Mar 2017 19:11:06 GMT",
+      "date_modified": "Sun, 26 Mar 2017 19:11:06 GMT",
+      "id": 10,
+      "items": [],
+      "name": "BucketList"
+    }
+```
+
+###### POST HTTP Request
+-   `POST /api/v1/bucketlists/<bucketlist_id>/items`
+```json
+{
+  "name":"Item 1",
+  "done":"false"
+}
+```
+-   Requires: User Authentication
+    ###### HTTP Response
+-   HTTP Status: `200: OK`
+-   JSON data
+```json
+{
+      "bucketlist_url": "http://localhost:5000/api/v1/bucketlists/10",
+      "created_by": 2,
+      "date_created": "Sun, 26 Mar 2017 19:11:06 GMT",
+      "date_modified": "Sun, 26 Mar 2017 19:11:06 GMT",
+      "id": 10,
+      "items": [
+          {
+          "date_created": "Sun, 26 Mar 2017 19:41:48 GMT",
+          "date_modified": "Sun, 26 Mar 2017 19:41:48 GMT",
+          "done": false,
+          "id": 12,
+          "name": "Item 1"
+          }
+      ],
+      "name": "BucketList1"
+    }
+```
+
+###### PUT HTTP Request
+-   `POST /api/v1/bucketlists/<bucketlist_id>`
+```json
+{
+  "name":"John Doe's BucketList"
+}
+```
+-   Requires: User Authentication
+    ###### HTTP Response
+-   HTTP Status: `200: OK`
+-   JSON data
+```json
+{
+      "bucketlist_url": "http://localhost:5000/api/v1/bucketlists/10",
+      "created_by": 2,
+      "date_created": "Sun, 26 Mar 2017 19:11:06 GMT",
+      "date_modified": "Sun, 26 Mar 2017 19:11:06 GMT",
+      "id": 10,
+      "items": [
+          {
+          "date_created": "Sun, 26 Mar 2017 19:41:48 GMT",
+          "date_modified": "Sun, 26 Mar 2017 19:41:48 GMT",
+          "done": false,
+          "id": 12,
+          "name": "Item 1"
+          }
+      ],
+      "name": "John Doe's BucketList"
+    }
+```
+
+###### DELETE HTTP Request
+-   `DELETE /api/v1/bucketlists/<bucketlist_id>`
+-   Requires: User Authentication
+    ###### HTTP Response
+-   HTTP Status: `200: OK`
+-   JSON data
+```json
+{
+    "Delete":"true"
+}
 ```
 
 ## Authors
