@@ -205,8 +205,6 @@ class TestAPIRoutes(unittest.TestCase):
         status code.
         """
         token = self.user2.generate_auth_token()
-        print token
-        print self.user2.username
         response = self.client.post(
             url_for('main.create_bucketlist'),
             data=json.dumps({"name": "Protons BucketList"}),
