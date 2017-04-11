@@ -14,3 +14,4 @@ passlib==1.7.1
 psycopg2==2.7.1
 python-dotenv==0.6.4
 SQLAlchemy==1.1.6
+tox==2.7.0
