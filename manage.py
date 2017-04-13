@@ -1,7 +1,7 @@
 """
 Python script for managing the flask application.
 
-THis is the script that starts the flask application.
+This is the script that starts the flask application.
 """
 from os.path import join, dirname
 import os

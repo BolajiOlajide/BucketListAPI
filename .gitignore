@@ -3,6 +3,7 @@
 __pycache_/
 .DS_Store
 .env
+*.sqlite
 
 *.egg-info
 

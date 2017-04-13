@@ -7,7 +7,7 @@ Test the models of the application to be certain it's functioning well.
 import unittest
 
 from app import db, create_app
-from app.models import User, Base, BucketList, Items
+from app.models import User, BucketList, Items
 
 
 class UserModelTestCase(unittest.TestCase):
@@ -37,37 +37,6 @@ class UserModelTestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
-
-    def test_user_base_inheritance(self):
-        """
-        Test user model.
-
-        Test if the User model inherits properties from the Base class.
-        """
-        user = User(username='test')
-        self.assertIsInstance(user, Base)
-
-    def test_bucketlist_base_inheritaance(self):
-        """
-        Test BucketList model.
-
-        Test if the BucketList model inherits properties from the Base class.
-        """
-        bucketlist = BucketList(
-            name="Bolaji's Personal"
-        )
-        self.assertIsInstance(bucketlist, Base)
-
-    def test_items_base_inheritance(self):
-        """
-        Test Items model.
-
-        Test if the Items model inherits properties from the Base class.
-        """
-        item = Items(
-            name="Jump off. a cliff"
-        )
-        self.assertIsInstance(item, Base)
 
     def test_password_setter(self):
         """

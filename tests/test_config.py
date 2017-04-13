@@ -3,8 +3,8 @@ Configuration Test Case.
 
 Test the configuration of the application to be certain it's functioning well.
 """
-from os.path import join
-import os
+from os import environ
+from os.path import join, abspath, dirname
 import unittest
 
 from dotenv import load_dotenv
@@ -12,7 +12,7 @@ from flask import current_app
 
 from app import create_app
 
-basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+basedir = abspath(dirname(dirname(__file__)))
 dotenv_path = join(basedir, '.env')
 load_dotenv(dotenv_path)
 
@@ -50,11 +50,11 @@ class TestDevelopmentConfig(unittest.TestCase):
         Test that DEBUG and SQLALCHEMY_TRACK_MODIFICATIONS are set to True and
         the database used is the local one.
         """
-        self.assertTrue(self.app.config['DEBUG'] is True)
+        self.assertTrue(self.app.config['DEBUG'])
         self.assertFalse(current_app is None)
         self.assertTrue(
             self.app.config['SQLALCHEMY_DATABASE_URI'] ==
-            os.environ.get("DATABASE_URI")
+            environ.get("DATABASE_URI")
         )
         self.assertTrue(self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'])
 
@@ -92,8 +92,8 @@ class TestTestingConfig(unittest.TestCase):
         Test that DEBUG and SQLALCHEMY_TRACK_MODIFICATIONS are set to True and
         the database used is the local one.
         """
-        dbase = os.environ.get("TEST_DB")
-        self.assertFalse(self.app.config['USE_RATE_LIMITS'] is True)
+        dbase = environ.get("TEST_DB")
+        self.assertFalse(self.app.config['USE_RATE_LIMITS'])
         self.assertTrue(self.app.config['SQLALCHEMY_DATABASE_URI'] == dbase)
 
 
@@ -132,5 +132,5 @@ class TestProductionConfig(unittest.TestCase):
         """
         self.assertTrue(
             self.app.config['SQLALCHEMY_DATABASE_URI'] ==
-            os.environ.get("DATABASE_URI")
+            environ.get("DATABASE_URI")
         )

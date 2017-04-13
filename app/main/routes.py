@@ -3,16 +3,16 @@ This script contains the routes for the different API methods.
 
 This handles the overall routing of the application.
 """
+from datetime import datetime
+
 from flask import g, jsonify, request
-import psycopg2
 
 from . import main
-from app import errors
+from app import db, errors
 from app.auth.routes import auth
 from app.decorators import json, paginate
-from app.models import BucketList, Items, User
+from app.models import BucketList, Items
 import sqlalchemy
-from app import db
 
 
 @main.route('/bucketlists/', methods=['GET'])
@@ -61,14 +61,17 @@ def create_bucketlist():
         return errors.bad_request("Only JSON object is accepted. Please "
                                   "confirm that the key 'name' exists.")
 
-    user = User.query.filter_by(username=g.user.username).first().user_id
     try:
-        bucketlist = BucketList(name=request.json.get('name'), created_by=user)
+        bucketlist = BucketList(
+            name=request.json.get('name'),
+            created_by=g.user.user_id
+        )
         bucketlist.save()
     except (sqlalchemy.exc.IntegrityError, sqlalchemy.exc.InvalidRequestError):
         db.session().rollback()
-        return errors.bad_request("An error occurred while saving. "
-                                  "Please try again.")
+        return errors.bad_request(
+            "A BucketList with the name {0} exists.".format(
+                request.json.get('name')))
     return bucketlist, 201
 
 
@@ -82,7 +85,7 @@ def update_bucketlist(list_id):
     Update a BucketList name.
     """
     if not request.json:
-        return errors.bad_request("No JSON file detected.")
+        return errors.bad_request("Invalid Input. Only JSON input is allowed.")
     elif 'name' not in request.json:
         return errors.bad_request("The key 'name' not in the JSON")
     else:
@@ -133,13 +136,14 @@ def add_bucketlist_item(list_id):
         return errors.not_found("The BucketList with the id: {0} doesn't"
                                 " exist.".format(list_id))
 
-    if not request.json or (('name' and 'done') not in request.json):
-        return errors.bad_request("No JSON file detected.")
+    if not request.json or (('name' or 'done') not in request.json):
+        return errors.bad_request("Only JSON object is accepted.Please confirm"
+                                  " that the key 'name' or 'done' exists.")
 
     item = Items().from_json(request.json)
     item.bucketlist_id = bucketlist.bucketlist_id
     item.save()
-    return bucketlist, 200
+    return bucketlist, 201
 
 
 @main.route(
@@ -164,13 +168,16 @@ def update_bucketlist_item(list_id, item_id):
         return errors.not_found("The item with the ID: {0} doesn't exist"
                                 .format(item_id))
 
-    if not request.json or (('name' and 'done') not in request.json):
-        return errors.bad_request("No JSON file detected.")
-
-    item.name = request.json.get('name')
-    item.done = request.json.get('done')
-    item.save()
-    return bucketlist, 200
+    if not request.json:
+        return errors.bad_request("Invalid Input. Only JSON input is allowed.")
+    elif ('name' or 'done') not in request.json:
+        return errors.bad_request(
+            "The key 'name' or 'done' cannot be found in the JSON provided.")
+    else:
+        item.name = request.json.get('name')
+        item.done = request.json.get('done')
+        item.save()
+        return bucketlist, 200
 
 
 @main.route(

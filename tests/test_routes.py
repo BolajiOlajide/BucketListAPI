@@ -291,7 +291,7 @@ class TestAPIRoutes(unittest.TestCase):
                 "done": "false"
             }),
             headers=create_api_headers(self.token))
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, 201)
 
     def test_add_item_to_nonexistent_bucketlist(self):
         """
@@ -356,7 +356,7 @@ class TestAPIRoutes(unittest.TestCase):
         response = self.client.delete(
             url_for('main.delete_bucketlist_item', list_id=1, item_id=1),
             headers=create_api_headers(self.token))
-        self.assertEquals(response_post.status_code, 200)
+        self.assertEquals(response_post.status_code, 201)
         self.assertEquals(response.status_code, 200)
 
     def test_delete_item_wrong_bucketlist(self):

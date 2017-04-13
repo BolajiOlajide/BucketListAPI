@@ -32,16 +32,6 @@ class Config:
     DEFAULT_PER_PAGE = 20
     MAX_PER_PAGE = 100
 
-    @staticmethod
-    def init_app(app):
-        """
-        Initialize the application.
-
-        This static method initializes the application using whatever
-        configuration the user has chosen.
-        """
-        pass
-
 
 class DevelopmentConfig(Config):
     """

@@ -4,7 +4,7 @@ Define SQLAlchemy models.
 The SQLAlchemy models for the database is defined here.
 """
 
-import datetime
+from datetime import datetime
 
 from flask import current_app, url_for
 from itsdangerous import (
@@ -15,14 +15,19 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from . import db
 
 
-class Base(db.Model):
+class CRUDMixin(object):
     """
-    Base class for models.
+    Define the Create,Read, Update, Delete mixin.
 
-    Define the base class for the models so others can inherit from it.
+    Instantiate a mixin to handle save, delete and also handle common model
+    columns and methods.
     """
 
-    __abstract__ = True
+    date_created = db.Column(
+        db.DateTime, default=datetime.now(), nullable=False)
+    date_modified = db.Column(
+        db.DateTime, default=datetime.now(),
+        onupdate=datetime.now(), nullable=False)
 
     def save(self):
         """
@@ -43,7 +48,7 @@ class Base(db.Model):
         db.session.commit()
 
 
-class User(Base):
+class User(CRUDMixin, db.Model):
     """
     Set up the User model.
 
@@ -55,11 +60,6 @@ class User(Base):
     username = db.Column(db.String(32), unique=True, index=True,
                          nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    date_created = db.Column(
-        db.DateTime, default=datetime.datetime.now(), nullable=False)
-    date_modified = db.Column(
-        db.DateTime, default=datetime.datetime.now(),
-        onupdate=datetime.datetime.now(), nullable=False)
 
     def hash_password(self, password):
         """
@@ -127,25 +127,26 @@ class User(Base):
         return '<User: {}>'.format(self.username)
 
 
-class BucketList(Base):
+class BucketList(CRUDMixin, db.Model):
     """
     Set up the BucketList model.
 
     Define the properties of the BucketList object and the table name too.
     """
+    def __init__(self, **kwargs):
+        kwargs['date_created'] = datetime.now()
+        kwargs['date_modified'] = datetime.now()
+        super(BucketList, self).__init__(**kwargs)
 
     __table_args__ = (db.UniqueConstraint(
         'name', 'created_by', name='unique_constraint_bucketlist'),)
     __tablename__ = 'bucketlist'
     bucketlist_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
-    date_created = db.Column(
-        db.DateTime, default=datetime.datetime.now(), nullable=False)
-    date_modified = db.Column(
-        db.DateTime, default=datetime.datetime.now(),
-        onupdate=datetime.datetime.now(), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('users.user_id'),
                            nullable=False)
+    items = db.relationship('Items', backref="bucketlist",
+                            cascade="all, delete-orphan", lazy='dynamic')
 
     def to_json(self):
         """
@@ -204,12 +205,16 @@ class BucketList(Base):
         return '<BucketList: {}>'.format(self.name)
 
 
-class Items(Base):
+class Items(CRUDMixin, db.Model):
     """
     Set up the Items model.
 
     Define the properties of the Items object and the table name too.
     """
+    def __init__(self, **kwargs):
+        kwargs['date_created'] = datetime.now()
+        kwargs['date_modified'] = datetime.now()
+        super(Items, self).__init__(**kwargs)
 
     __table_args__ = (db.UniqueConstraint(
         'name', 'bucketlist_id', name='unique_constraint_item'),)
@@ -217,21 +222,8 @@ class Items(Base):
     item_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
     done = db.Column(db.Boolean, nullable=False)
-    date_created = db.Column(
-        db.DateTime, default=datetime.datetime.now(), nullable=False)
-    date_modified = db.Column(
-        db.DateTime, default=datetime.datetime.now(),
-        onupdate=datetime.datetime.now(), nullable=False)
     bucketlist_id = db.Column(
         db.Integer, db.ForeignKey('bucketlist.bucketlist_id'), nullable=False
-    )
-    bucketlist = db.relationship(
-        'BucketList',
-        backref=db.backref(
-            'items',
-            cascade="all,delete-orphan"
-        ),
-        lazy='joined'
     )
 
     def to_json(self):
@@ -258,6 +250,9 @@ class Items(Base):
         if 'done' in json:
             done = json['done'].lower()
             self.done = bool(1 if done == 'true' else 0)
+        else:
+            self.done = bool(0)
+
         if 'name' in json:
             self.name = json['name']
         if not self.name:
@@ -272,7 +267,7 @@ class Items(Base):
 
         Returns the URL of the instance of the BucketList.
         """
-        return url_for('api.get_bucketlist_item',
+        return url_for('main.get_bucketlist_item',
                        bucketlist_id=self.bucketlist_id,
                        item_id=self.item_id,
                        _external=True)
