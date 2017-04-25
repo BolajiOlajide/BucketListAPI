@@ -3,9 +3,8 @@ This script contains the routes for the different API methods.
 
 This handles the overall routing of the application.
 """
-from datetime import datetime
-
 from flask import g, jsonify, request
+from flask_cors import cross_origin
 
 from . import main
 from app import db, errors
@@ -15,7 +14,8 @@ from app.models import BucketList, Items
 import sqlalchemy
 
 
-@main.route('/bucketlists/', methods=['GET'])
+@main.route('/bucketlists/', methods=['GET', 'OPTIONS'])
+@cross_origin()
 @auth.login_required
 @paginate()
 def get_bucketlists():

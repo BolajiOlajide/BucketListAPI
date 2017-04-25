@@ -4,6 +4,7 @@ Setup an initialization to delay the creation of the application after runtime.
 This helps to enable the use of blueprint.
 """
 from flask import Flask
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
 from config import config
@@ -20,6 +21,8 @@ def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     db.init_app(app)
+    app.config['CORS_HEADERS'] = 'Content-Type'
+    cors = CORS(app)
 
     # Register the authentication blueprint in the application instance.
     from auth import authentication as auth_blueprint

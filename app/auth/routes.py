@@ -4,6 +4,7 @@ Authentication settings for the BucketList API.
 Password verification and user registration takes place here.
 """
 from flask import g, jsonify, request
+from flask_cors import cross_origin
 from flask_httpauth import HTTPBasicAuth
 
 from . import authentication
@@ -31,7 +32,8 @@ def verify_token(token, password):
     return True
 
 
-@authentication.route('/login', methods=['POST'])
+@authentication.route('/login', methods=['POST', 'OPTIONS'])
+@cross_origin()
 def login():
     """
     Verify user name & password.
@@ -56,7 +58,8 @@ def login():
     return jsonify({'token': token}), 200
 
 
-@authentication.route('/register', methods=['POST'])
+@authentication.route('/register', methods=['POST', 'OPTIONS'])
+@cross_origin()
 @json
 def register_user():
     """
