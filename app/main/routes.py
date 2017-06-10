@@ -9,9 +9,19 @@ from flask_cors import cross_origin
 from . import main
 from app import db, errors
 from app.auth.routes import auth
-from app.decorators import json, paginate
+from app.decorators import json, paginate, crossdomain
 from app.models import BucketList, Items
 import sqlalchemy
+
+@main.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Allow-Headers',
+                         'Content-Type,Authorization,'
+                         'Access-Control-Allow-Origin,'
+                         'Access-Control-Allow-Credentials,Authentication')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    return response
 
 
 @main.route('/bucketlists/', methods=['GET', 'OPTIONS'])
@@ -32,7 +42,8 @@ def get_bucketlists():
         return BucketList.query.filter_by(created_by=g.user.user_id)
 
 
-@main.route('/bucketlists/<int:list_id>', methods=['GET'])
+@main.route('/bucketlists/<int:list_id>', methods=['GET', 'OPTIONS'])
+@cross_origin()
 @auth.login_required
 @json
 def get_bucketlist(list_id):
@@ -48,7 +59,8 @@ def get_bucketlist(list_id):
     return bucketlist, 200
 
 
-@main.route('/bucketlists/', methods=['POST'], strict_slashes=False)
+@main.route('/bucketlists/', methods=['POST', 'OPTIONS'], strict_slashes=False)
+@cross_origin()
 @auth.login_required
 @json
 def create_bucketlist():
@@ -75,7 +87,8 @@ def create_bucketlist():
     return bucketlist, 201
 
 
-@main.route('/bucketlists/<int:list_id>', methods=['PUT'])
+@main.route('/bucketlists/<int:list_id>', methods=['PUT', 'OPTIONS'])
+@cross_origin()
 @auth.login_required
 @json
 def update_bucketlist(list_id):
@@ -100,7 +113,8 @@ def update_bucketlist(list_id):
             return bucketlist, 200
 
 
-@main.route('/bucketlists/<int:list_id>', methods=['DELETE'])
+@main.route('/bucketlists/<int:list_id>', methods=['DELETE', 'OPTIONS'])
+@cross_origin()
 @auth.login_required
 def delete_bucketlist(list_id):
     """
@@ -119,8 +133,9 @@ def delete_bucketlist(list_id):
 
 
 @main.route(
-    '/bucketlists/<int:list_id>/items/', methods=['POST'], strict_slashes=False
+    '/bucketlists/<int:list_id>/items/', methods=['POST', 'OPTIONS'], strict_slashes=False
 )
+@cross_origin()
 @auth.login_required
 @json
 def add_bucketlist_item(list_id):
@@ -147,8 +162,9 @@ def add_bucketlist_item(list_id):
 
 
 @main.route(
-    '/bucketlists/<int:list_id>/items/<int:item_id>', methods=['PUT']
+    '/bucketlists/<int:list_id>/items/<int:item_id>', methods=['PUT', 'OPTIONS']
 )
+@cross_origin()
 @auth.login_required
 @json
 def update_bucketlist_item(list_id, item_id):
@@ -181,8 +197,9 @@ def update_bucketlist_item(list_id, item_id):
 
 
 @main.route(
-    '/bucketlists/<int:list_id>/items/<int:item_id>', methods=['DELETE']
+    '/bucketlists/<int:list_id>/items/<int:item_id>', methods=['DELETE', 'OPTIONS']
 )
+@cross_origin()
 @auth.login_required
 @json
 def delete_bucketlist_item(list_id, item_id):
