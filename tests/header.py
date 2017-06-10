@@ -12,7 +12,7 @@ def create_api_headers(token):
 
     This is going to be sent along with the request for verification.
     """
-    auth_type = 'Basic ' + base64.b64encode(bytes(token + ":")).decode('ascii')
+    auth_type = 'Basic ' + base64.b64encode(token + ":")
 
     return {
         'Authorization': auth_type,
