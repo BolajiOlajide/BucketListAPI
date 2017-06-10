@@ -22,7 +22,11 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     db.init_app(app)
     app.config['CORS_HEADERS'] = 'Content-Type'
-    cors = CORS(app)
+    cors = CORS(
+        app,
+        supports_credentials=True,
+        # resources={r"/api/v1/*": {"origins": "http://localhost:4200"}},
+    )
 
     # Register the authentication blueprint in the application instance.
     from auth import authentication as auth_blueprint
